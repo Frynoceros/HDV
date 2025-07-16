@@ -1,90 +1,17 @@
-import React, { useRef, useEffect } from 'react';
+import React from 'react';
 import { Line } from 'react-chartjs-2';
-import { useResponsiveChart } from '../../hooks';
-import { registerChartJS } from './ChartRegistry';
+import BaseChart from './BaseChart';
+import { getChartConfig } from './chartConfigs';
 
-export default function LineChart({
-  xAxis,
-  yAxis,
-  displayData,
-  xAxisLabel,
-  yAxisLabel,
-  graphName,
-  graphLabel,
-  selectedCheckbox,
-  setDownload,
-  download,
-}) {
-  const ref = useRef(null);
-  const { getResponsiveOptions, getChartContainer } = useResponsiveChart();
-
-  // Ensure Chart.js is registered
-  useEffect(() => {
-    registerChartJS();
-  }, []);
-
-  // Update download reference when chart changes
-  useEffect(() => {
-    if (setDownload && ref.current) {
-      setDownload(ref);
-    }
-  }, [
-    xAxis,
-    yAxis,
-    displayData,
-    yAxisLabel,
-    xAxisLabel,
-    graphLabel,
-    graphName,
-    setDownload,
-  ]);
-
-  const getXArray = selectedCheckbox.map((x) => {
-    return x[xAxisLabel];
-  });
-  const getYArray = selectedCheckbox.map((y) => {
-    return y[yAxisLabel];
-  });
-
-
-  // TODO - Need to resolve issue with re-naming axis not re-rendering state.
-
-  const labels = getXArray;
-
-  const data = {
-    labels,
-    datasets: [
-      {
-        label: graphLabel,
-        data: getYArray,
-        backgroundColor: 'red',
-      },
-    ],
-  };
-
-  const baseOptions = {
-    scales: {
-      x: {
-        title: {
-          text: xAxisLabel,
-          display: true,
-        },
-      },
-      y: {
-        title: {
-          text: yAxisLabel,
-          display: true,
-        },
-      },
-    },
-  };
-
-  const options = getResponsiveOptions(baseOptions);
-  const containerStyle = getChartContainer();
-
+export default function LineChart(props) {
+  const chartConfig = getChartConfig('Line Chart');
+  
   return (
-    <div style={containerStyle}>
-      <Line ref={ref} options={options} data={data} />
-    </div>
+    <BaseChart
+      ChartComponent={Line}
+      chartType="Line Chart"
+      chartConfig={chartConfig}
+      {...props}
+    />
   );
 }
