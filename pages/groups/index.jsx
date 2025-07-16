@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import {thumbnails} from '../../public/groupThumbs';
 
 export default function GroupsIndex({ groups }) {
@@ -29,10 +30,13 @@ export default function GroupsIndex({ groups }) {
             className="rounded-lg bg-white py-10 px-6 text-center xl:px-10 xl:text-center"
           >
             <div className="space-y-6 xl:space-y-10">
-              <img
-                className="mx-auto h-40 w-40  xl:h-40 xl:w-40"
+              <Image
+                className="mx-auto h-40 w-40 xl:h-40 xl:w-40 object-cover"
                 src={thumbnails[group]}
-                alt={`${group}'s photo`}
+                alt={`${group} icon`}
+                width={160}
+                height={160}
+                sizes="(max-width: 1280px) 160px, 160px"
               />
               <div className="space-y-2 xl:flex xl:items-center xl:justify-between cursor: pointer">
                 <button className="space-y-1 text-lg font-medium leading-6 ">
