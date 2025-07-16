@@ -8,6 +8,8 @@ import {
 } from '@heroicons/react/24/outline';
 
 import Link from 'next/link';
+import Image from 'next/image';
+import { useRouter } from 'next/router';
 
 const navigation = [
   {name: 'Home', icon: HomeIcon, href: '/', count: 3, current: false},
@@ -41,36 +43,52 @@ function classNames(...classes) {
 }
 
 export default function Sidebar() {
+  const router = useRouter();
+  
   return (
-    <div className="flex-shrink-0 h-full sticky top-0 flex-col overflow-y-auto border-r border-gray-200 bg-white pt-5 pb-4 ml-5">
-      <div className="mt-5 flex flex-grow flex-col mr-5">
-        <nav className="flex-1 space-y-1 bg-white px-2" aria-label="Sidebar">
-          {navigation.map((item) => (
-            <a
-              key={item.name}
-              className={classNames(
-                item.current
-                  ? 'bg-gray-100 text-gray-900'
-                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
-                'group flex items-center px-2 py-2 text-sm font-medium rounded-md'
-              )}
-            >
-              <item.icon
-                className={classNames(
-                  item.current
-                    ? 'text-gray-500'
-                    : 'text-gray-400 group-hover:text-gray-500',
-                  'mr-3 flex-shrink-0 h-6 w-6'
-                )}
-                aria-hidden="true"
-              />
-              <Link key={item.name} href={item.href}>
-                <span className="flex-1 mr-5 cursor-pointer">{item.name}</span>
-              </Link>
-            </a>
-          ))}
-        </nav>
+    <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white px-6 pb-4">
+      <div className="flex h-16 shrink-0 items-center">
+        <Image
+          className="h-8 w-auto"
+          src="/seal.png"
+          alt="Hawaii Open Data"
+          width={32}
+          height={32}
+        />
+        <span className="ml-3 text-lg font-semibold">Hawaii Open Data</span>
       </div>
+      <nav className="flex flex-1 flex-col">
+        <ul role="list" className="flex flex-1 flex-col gap-y-7">
+          <li>
+            <ul role="list" className="-mx-2 space-y-1">
+              {navigation.map((item) => (
+                <li key={item.name}>
+                  <Link
+                    href={item.href}
+                    className={classNames(
+                      router.pathname === item.href
+                        ? 'bg-gray-50 text-indigo-600'
+                        : 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50',
+                      'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
+                    )}
+                  >
+                    <item.icon
+                      className={classNames(
+                        router.pathname === item.href
+                          ? 'text-indigo-600'
+                          : 'text-gray-400 group-hover:text-indigo-600',
+                        'h-6 w-6 shrink-0'
+                      )}
+                      aria-hidden="true"
+                    />
+                    {item.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </li>
+        </ul>
+      </nav>
     </div>
   );
 }

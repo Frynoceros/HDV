@@ -3,6 +3,8 @@ import {useAppContext} from '../pages/AppWrapper';
 import {useState} from 'react';
 import Image from 'next/image';
 import SearchBar from './SearchBar';
+import MobileNavigation from './MobileNavigation';
+import { Bars3Icon } from '@heroicons/react/24/outline';
 
 const navigation = [
   {name: 'Home', href: '/', current: false},
@@ -20,9 +22,10 @@ function classNames(...classes) {
 
 export default function Navbar() {
   const [inputText, setInputText] = useState('');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const appContext = useAppContext();
-  const {datasets} = appContext;
+  const {searchDatasetNames} = appContext;
 
   return (
     <>
@@ -38,16 +41,24 @@ export default function Navbar() {
                 width="60"
               />
             </div>
-            <h1 className="ml-4 flex items-end text-xl pb-1">
-              Open Data Hawaii Visualizer
+            <h1 className="ml-4 flex items-end text-base sm:text-lg md:text-xl pb-1">
+              <span className="hidden sm:inline">Open Data Hawaii Visualizer</span>
+              <span className="sm:hidden">HDV</span>
             </h1>
           </div>
           <div className="relative z-0 flex flex-1 items-center justify-center px-2 sm:absolute sm:inset-0"></div>
           <div className="relative z-10 flex items-center lg:hidden">
-            {/* Mobile menu button */}
+            <button
+              type="button"
+              className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700"
+              onClick={() => setMobileMenuOpen(true)}
+            >
+              <span className="sr-only">Open main menu</span>
+              <Bars3Icon className="h-6 w-6" aria-hidden="true" />
+            </button>
           </div>
           <div className="hidden lg:relative lg:z-10 lg:ml-4 lg:flex lg:items-center">
-            <SearchBar datasets={datasets} />
+            <SearchBar datasets={searchDatasetNames} />
           </div>
         </div>
         <nav
@@ -55,6 +66,7 @@ export default function Navbar() {
           aria-label="Global"
         ></nav>
       </div>
+      <MobileNavigation open={mobileMenuOpen} setOpen={setMobileMenuOpen} />
     </>
   );
 }

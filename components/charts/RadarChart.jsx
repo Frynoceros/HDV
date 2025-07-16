@@ -1,30 +1,22 @@
-import React from 'react';
-import {
-  Chart as ChartJS,
-  RadialLinearScale,
-  PointElement,
-  LineElement,
-  Filler,
-  Tooltip,
-  Legend,
-} from 'chart.js';
+import React, { useEffect } from 'react';
 import { Radar } from 'react-chartjs-2';
-
-ChartJS.register(
-  RadialLinearScale,
-  PointElement,
-  LineElement,
-  Filler,
-  Tooltip,
-  Legend
-);
+import { useResponsiveChart } from '../../hooks';
+import { registerChartJS } from './ChartRegistry';
 
 export default function RadarChart({
   xAxisLabel,
   yAxisLabel,
   graphLabel,
   selectedCheckbox,
+  setDownload,
 }) {
+  const { getResponsiveOptions, getChartContainer } = useResponsiveChart();
+
+  // Ensure Chart.js is registered
+  useEffect(() => {
+    registerChartJS();
+  }, []);
+  
   const getXArray = selectedCheckbox.map((x) => {
     return x[xAxisLabel];
   });
@@ -33,8 +25,6 @@ export default function RadarChart({
     return y[yAxisLabel];
   });
 
-  // console.log(getXArray, '🥶');
-  // console.log(getYArray, '🧶');
   const data = {
     labels: getYArray,
     // labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
@@ -63,11 +53,13 @@ export default function RadarChart({
     ],
   };
 
-  console.log(data.labels, 'LABELS');
+
+  const options = getResponsiveOptions();
+  const containerStyle = getChartContainer();
 
   return (
-    <div>
-      <Radar data={data} className="max-h-96" />
+    <div style={containerStyle}>
+      <Radar data={data} options={options} />
     </div>
   );
 }

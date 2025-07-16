@@ -1,8 +1,7 @@
-import {Chart as ChartJS, ArcElement, Tooltip, Legend} from 'chart.js';
-import {Pie} from 'react-chartjs-2';
-import {useEffect, useRef} from 'react';
-
-ChartJS.register(ArcElement, Tooltip, Legend);
+import React, { useEffect, useRef } from 'react';
+import { Pie } from 'react-chartjs-2';
+import { useResponsiveChart } from '../../hooks';
+import { registerChartJS } from './ChartRegistry';
 
 export default function PieChart({
   xAxisLabel,
@@ -11,12 +10,20 @@ export default function PieChart({
   selectedCheckbox,
   setDownload,
 }) {
-  let ref = useRef(null);
+  const ref = useRef(null);
+  const { getResponsiveOptions, getChartContainer } = useResponsiveChart();
 
-  //run this function for ANY dependant changes on the graph
+  // Ensure Chart.js is registered
   useEffect(() => {
-    setDownload(ref);
-  }, [yAxisLabel, xAxisLabel, graphLabel]);
+    registerChartJS();
+  }, []);
+
+  // Update download reference when chart changes
+  useEffect(() => {
+    if (setDownload && ref.current) {
+      setDownload(ref);
+    }
+  }, [yAxisLabel, xAxisLabel, graphLabel, setDownload]);
 
   const getXArray = selectedCheckbox.map((x) => {
     return x[xAxisLabel];
@@ -54,9 +61,12 @@ export default function PieChart({
     ],
   };
 
+  const options = getResponsiveOptions();
+  const containerStyle = getChartContainer();
+
   return (
-    <div>
-      <Pie ref={ref} data={data} className="max-h-96" />
+    <div style={containerStyle}>
+      <Pie ref={ref} data={data} options={options} />
     </div>
   );
 }

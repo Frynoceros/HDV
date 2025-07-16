@@ -38,26 +38,45 @@ Hawaii Data Visualizer is a Next.js web application that provides interactive vi
 ```
 HDV/
 ├── components/          # Reusable React components
-│   ├── Layout.jsx      # Main layout wrapper
-│   ├── Sidebar.jsx     # Navigation sidebar
-│   ├── Navbar.jsx      # Top navigation bar
-│   ├── SearchBar.jsx   # Dataset search functionality
+│   ├── UnifiedLayout.jsx   # Main layout handling desktop/mobile (NEW)
+│   ├── Layout.jsx          # Legacy layout wrapper
+│   ├── Sidebar.jsx         # Navigation sidebar (FIXED: nested anchor tags)
+│   ├── Navbar.jsx          # Top navigation bar
+│   ├── MobileNavigation.jsx # Mobile slide-over menu (NEW)
+│   ├── SearchBar.jsx       # Dataset search functionality
 │   ├── ChartGenerator.jsx  # Main chart generation logic
-│   ├── Graph.jsx       # Chart configuration interface
-│   └── charts/         # Individual chart components
+│   ├── Graph.jsx           # Chart configuration interface
+│   ├── ErrorBoundary.jsx   # Error boundary component (NEW)
+│   ├── LoadingState.jsx    # Enhanced loading components (NEW)
+│   ├── Loading.jsx         # Original loading component
+│   └── charts/             # Individual chart components
 │       ├── LineChart.jsx
 │       ├── BarChart.jsx
 │       └── ... (8 chart types total)
 ├── pages/              # Next.js pages (Pages Router)
-│   ├── _app.jsx        # App initialization
+│   ├── _app.jsx        # App initialization (with ErrorBoundary)
+│   ├── AppWrapper.jsx  # Context provider (updated with API service)
 │   ├── index.jsx       # Homepage
 │   ├── datasets/       # Dataset routes
 │   ├── groups/         # Group routes
 │   ├── organizations/  # Organization routes
 │   └── api/           # API routes (currently unused)
+├── constants/          # Application constants (NEW)
+│   ├── api.js         # API configuration and endpoints
+│   ├── ui.js          # UI constants and breakpoints
+│   └── index.js       # Barrel export
+├── services/           # API service layer (NEW)
+│   └── api.js         # Centralized API calls with error handling
+├── hooks/              # Custom React hooks (NEW)
+│   ├── useApi.js      # Generic API hook with caching
+│   └── index.js       # Barrel export
 ├── styles/             # Global styles
 ├── lib/               # Utility functions
-└── public/            # Static assets
+├── public/            # Static assets
+├── .env.local         # Environment variables (NEW)
+├── .env.example       # Environment template (NEW)
+├── CLAUDE.md          # Project documentation (THIS FILE)
+└── REFACTORING_PLAN.md # Phased modernization strategy (NEW)
 ```
 
 ## Key Features
@@ -89,32 +108,87 @@ The app integrates with Hawaii Open Data Portal API:
   - `package_show`: Get dataset details
   - OData endpoint for actual data retrieval
 
-## Known Issues & Technical Debt
+## Recent Improvements & Current Status
+
+### ✅ Phase 1 Complete - Foundation & Critical Fixes
+1. **Environment Configuration**: Created `.env.local` and `.env.example` with all API configurations
+2. **Constants Organization**: Centralized all hardcoded values in `/constants` directory
+3. **API Service Layer**: Implemented centralized API calls with error handling, retries, and caching
+4. **Custom Hooks**: Created reusable hooks for data fetching with built-in caching
+5. **Error Handling**: Added ErrorBoundary component for graceful error handling
+6. **Loading States**: Created enhanced loading components with multiple variants
+7. **Bug Fix**: Fixed critical nested anchor tag issue in Sidebar component
+8. **Code Cleanup**: Removed all console.log statements from production code
+
+### ✅ Additional Fixes (January 2025)
+1. **Link Component Migration**: Fixed all `<Link>` components with nested `<a>` tags for Next.js 15 compatibility
+2. **Tailwind CSS v4 Configuration**: Updated PostCSS config and globals.css for Tailwind CSS 4.1.11
+3. **Navigation Errors**: Resolved runtime errors preventing page navigation
+
+### ✅ Recently Completed (January 2025)
+
+#### Performance Optimization
+1. **Dataset Loading Optimization**: 
+   - Fixed critical issue where all 1500 datasets loaded on every page
+   - Implemented lazy loading strategy - datasets only fetch when needed
+   - Search functionality now fetches minimal data (name, title only)
+   - Individual pages fetch their own data independently
+   - AppWrapper now intelligently loads data based on route
+
+#### Mobile-First Responsive Design
+1. **Mobile Navigation System**: 
+   - Created MobileNavigation component with Tailwind UI slide-over menu
+   - Added hamburger menu button to Navbar
+   - Implemented responsive layout wrapper
+   - Full mobile navigation support with smooth transitions
+
+2. **Modern UI Components**:
+   - Redesigned homepage with beautiful hero section and feature highlights
+   - Created responsive Card and GridList components
+   - Updated DatasetMain with modern grid layout and inline search
+   - Modernized Sidebar with better visual hierarchy
+   - All components now mobile-responsive
+
+3. **Design System**:
+   - Consistent use of Tailwind UI patterns
+   - Gradient headers for visual interest
+   - Proper hover states and transitions
+   - Touch-friendly tap targets
+
+#### Layout Architecture
+1. **Unified Layout System**:
+   - Created UnifiedLayout component to handle both desktop and mobile views
+   - Fixed navbar and sidebar overlap issues on desktop
+   - Desktop: Fixed sidebar with search in top header
+   - Mobile: Hamburger menu with slide-over navigation
+   - Consistent branding across all viewports
+
+### ✅ Latest Improvements (January 2025)
+1. **Table Pagination**: Added robust pagination to dataset detail pages with 25 entries default
+2. **Mobile Chart Responsiveness**: Charts now adapt to screen size with proper scaling
+3. **Skeleton Loaders**: Enhanced loading states across the application
+4. **React Key Fixes**: Resolved all React key warnings in Table component
+
+### 🚧 Still In Progress
+1. **Touch gestures** for data tables
+2. **Infinite scroll** as alternative to pagination
+
+## Remaining Technical Debt
 
 ### Performance Issues
-1. **Initial Load**: Fetches all 1500 datasets on app initialization
-2. **No Caching**: Every page reload fetches all data again
-3. **No Pagination**: Large datasets load entirely into memory
-4. **Client-Side Rendering**: No SSR/SSG implementation
+1. **No Server-Side Rendering**: Client-side rendering only
+2. **Large Bundle Size**: No code splitting implemented
+3. **Client-side Pagination**: Currently using client-side pagination for datasets
 
-### Mobile Responsiveness
-1. **Fixed Layouts**: Components use hard-coded grid columns
-2. **No Mobile Navigation**: Sidebar always visible, no hamburger menu
-3. **Table Overflow**: Horizontal scrolling not optimized for touch
-4. **Chart Sizing**: Fixed heights don't adapt to mobile screens
+### Areas for Improvement
+1. **Touch gestures**: Data tables need touch gestures for mobile interaction
+2. **Search Performance**: Could implement server-side search for large datasets
 
 ### Code Quality
-1. **Hardcoded Values**: API URLs, magic numbers throughout
-2. **Duplicated Code**: Chart components share 90% similarity
-3. **Props Drilling**: Deep component hierarchies
-4. **No Error Handling**: Failed API calls show blank screens
-5. **Console Logs**: Development logs in production
-
-### Outdated Patterns
-1. **Direct DOM Manipulation**: Using getElementById instead of React refs
-2. **No TypeScript**: Pure JavaScript with no type safety
-3. **Commented Code**: Unused API routes and features
-4. **Mixed Concerns**: Components handle both logic and presentation
+1. **Duplicated Code**: Chart components share 90% similarity
+2. **Props Drilling**: Some deep component hierarchies remain
+3. **No TypeScript**: Pure JavaScript with no type safety
+4. **Direct DOM Manipulation**: Still using getElementById in some places
 
 ## Development Guidelines
 
@@ -137,7 +211,23 @@ npm run lint
 ```
 
 ### Environment Variables
-Currently, no environment variables are configured. API URLs are hardcoded.
+Configure your `.env.local` file with the following variables:
+```bash
+# Hawaii Open Data API Configuration
+NEXT_PUBLIC_API_BASE_URL=https://opendata.hawaii.gov/api/3/action
+NEXT_PUBLIC_ODATA_BASE_URL=https://opendata.hawaii.gov/datastore/odata3.0
+
+# API Configuration
+NEXT_PUBLIC_API_TIMEOUT=30000
+NEXT_PUBLIC_MAX_RETRIES=3
+
+# Pagination
+NEXT_PUBLIC_DEFAULT_PAGE_SIZE=30
+NEXT_PUBLIC_MAX_DATASETS_FETCH=1500
+
+# Development
+NEXT_PUBLIC_ENABLE_DEBUG=false
+```
 
 ### Best Practices Moving Forward
 1. **Use Context7 MCP**: When implementing new features, use "use context7" to get current documentation
@@ -150,10 +240,20 @@ Currently, no environment variables are configured. API URLs are hardcoded.
 ## MCP Integration Guide
 
 ### Using Context7 for Documentation
-When working on features, prefix prompts with "use context7" to get current docs:
-- "use context7: Next.js 15 app router migration"
-- "use context7: Chart.js responsive configuration"
-- "use context7: Tailwind CSS v4 mobile breakpoints"
+Context7 provides up-to-date, version-specific documentation directly in your development workflow.
+
+**How to use:**
+1. Write your coding request normally
+2. Add "use context7" at the end of your prompt
+3. Receive current, accurate documentation and code examples
+
+**Examples:**
+- "Create a Next.js 15 server component with data fetching. use context7"
+- "Configure Chart.js 4 for responsive mobile charts. use context7"
+- "Set up Tailwind CSS 4 with mobile-first breakpoints. use context7"
+- "Implement React 19 error boundaries with suspense. use context7"
+
+**Note:** Context7 prevents outdated or hallucinated code by pulling documentation directly from official sources.
 
 ### Using Playwright for Testing
 Playwright MCP can be used for:
@@ -199,6 +299,26 @@ _app.jsx
                   └─ Chart Components
 ```
 
+## Working With This Codebase
+
+### Getting Started
+1. Review this documentation to understand the current state
+2. Check `REFACTORING_PLAN.md` for the modernization roadmap
+3. Set up your `.env.local` file using `.env.example` as a template
+4. Run `npm install` and `npm run dev` to start developing
+
+### Key Files to Know
+- `/services/api.js` - All API calls go through here
+- `/constants/` - All configuration and constants
+- `/hooks/useApi.js` - Custom hooks for data fetching
+- `/components/ErrorBoundary.jsx` - Handles app-wide errors
+- `/components/LoadingState.jsx` - Various loading components
+
+### Current Focus Areas
+1. **Mobile Responsiveness** (Phase 2) - Making the app work well on all devices
+2. **Performance** (Phase 3) - Implementing pagination and caching
+3. **Code Quality** (Phase 4) - TypeScript migration and testing
+
 ## Next Steps
 
 See `REFACTORING_PLAN.md` for a detailed, phased approach to modernizing this codebase with:
@@ -212,3 +332,10 @@ See `REFACTORING_PLAN.md` for a detailed, phased approach to modernizing this co
 
 *Last Updated: January 2025*
 *Next.js 15.4.1 | React 19.1.0 | Tailwind CSS 4.1.11*
+
+### Recent Changes Log
+- **Jan 2025**: Phase 1 complete - Foundation and critical fixes
+- **Jan 2025**: Fixed critical nested anchor tag bug in Sidebar
+- **Jan 2025**: Implemented API service layer with error handling
+- **Jan 2025**: Added environment variables configuration
+- **Jan 2025**: Removed all console.logs from production

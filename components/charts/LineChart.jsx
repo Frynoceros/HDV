@@ -1,26 +1,7 @@
-import React from 'react';
-import {useRef, useEffect} from 'react';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-} from 'chart.js';
-import {Line} from 'react-chartjs-2';
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-);
+import React, { useRef, useEffect } from 'react';
+import { Line } from 'react-chartjs-2';
+import { useResponsiveChart } from '../../hooks';
+import { registerChartJS } from './ChartRegistry';
 
 export default function LineChart({
   xAxis,
@@ -34,11 +15,19 @@ export default function LineChart({
   setDownload,
   download,
 }) {
-  let ref = useRef(null);
+  const ref = useRef(null);
+  const { getResponsiveOptions, getChartContainer } = useResponsiveChart();
 
-  //run this function for ANY dependant changes on the graph
+  // Ensure Chart.js is registered
   useEffect(() => {
-    setDownload(ref);
+    registerChartJS();
+  }, []);
+
+  // Update download reference when chart changes
+  useEffect(() => {
+    if (setDownload && ref.current) {
+      setDownload(ref);
+    }
   }, [
     xAxis,
     yAxis,
@@ -47,6 +36,7 @@ export default function LineChart({
     xAxisLabel,
     graphLabel,
     graphName,
+    setDownload,
   ]);
 
   const getXArray = selectedCheckbox.map((x) => {
@@ -56,8 +46,6 @@ export default function LineChart({
     return y[yAxisLabel];
   });
 
-  // console.log(getXArray, '🥶');
-  // console.log(getYArray, '🧶');
 
   // TODO - Need to resolve issue with re-naming axis not re-rendering state.
 
@@ -74,7 +62,7 @@ export default function LineChart({
     ],
   };
 
-  const options = {
+  const baseOptions = {
     scales: {
       x: {
         title: {
@@ -91,5 +79,12 @@ export default function LineChart({
     },
   };
 
-  return <Line ref={ref} options={options} data={data} className="max-h-96" />;
+  const options = getResponsiveOptions(baseOptions);
+  const containerStyle = getChartContainer();
+
+  return (
+    <div style={containerStyle}>
+      <Line ref={ref} options={options} data={data} />
+    </div>
+  );
 }

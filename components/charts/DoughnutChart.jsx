@@ -1,10 +1,7 @@
-import {Chart as ChartJS, ArcElement, Tooltip, Legend} from 'chart.js';
-import {Doughnut} from 'react-chartjs-2';
-import {useRef, useEffect} from 'react';
-
-ChartJS.register(ArcElement, Tooltip, Legend);
-
-ChartJS.register(ArcElement, Tooltip, Legend);
+import React, { useRef, useEffect } from 'react';
+import { Doughnut } from 'react-chartjs-2';
+import { useResponsiveChart } from '../../hooks';
+import { registerChartJS } from './ChartRegistry';
 
 export default function DoughnutChart({
   xAxisLabel,
@@ -13,12 +10,20 @@ export default function DoughnutChart({
   selectedCheckbox,
   setDownload,
 }) {
-  let ref = useRef(null);
+  const ref = useRef(null);
+  const { getResponsiveOptions, getChartContainer } = useResponsiveChart();
 
-  //run this function for ANY dependant changes on the graph
+  // Ensure Chart.js is registered
   useEffect(() => {
-    setDownload(ref);
-  }, [yAxisLabel, xAxisLabel, graphLabel]);
+    registerChartJS();
+  }, []);
+
+  // Update download reference when chart changes
+  useEffect(() => {
+    if (setDownload && ref.current) {
+      setDownload(ref);
+    }
+  }, [yAxisLabel, xAxisLabel, graphLabel, setDownload]);
 
   const getXArray = selectedCheckbox.map((x) => {
     return x[xAxisLabel];
@@ -56,9 +61,20 @@ export default function DoughnutChart({
     ],
   };
 
+  const baseOptions = {
+    plugins: {
+      legend: {
+        position: 'top',
+      },
+    },
+  };
+
+  const options = getResponsiveOptions(baseOptions);
+  const containerStyle = getChartContainer();
+
   return (
-    <div>
-      <Doughnut ref={ref} data={data} className="max-h-96" />
+    <div style={containerStyle}>
+      <Doughnut ref={ref} options={options} data={data} />
     </div>
   );
 }

@@ -14,10 +14,13 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
 }
 
-export default function DatasetLayout({datasetData, setMakeGraph}) {
+export default function DatasetLayout({datasetData, datasetTableData, setMakeGraph}) {
   if (datasetData === undefined) {
     return;
   } else {
+    // Check if this is an external dataset
+    const isExternal = datasetTableData?.externalUrl;
+    
     return (
       <div className="basis-4/5 px-1 pt-5 flex flex-col justify-center ">
         <div className="flex items-center justify-between ">
@@ -25,13 +28,24 @@ export default function DatasetLayout({datasetData, setMakeGraph}) {
             {datasetData.title === undefined ? '' : `${datasetData.title}`}
           </h1>
           <div className="mt-3 flex mr-4 flex items-start  ">
-            <button
-              type="button"
-              className="mr-3.5 inline-flex items-center rounded-md border shrink-0 border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-              onClick={() => setMakeGraph(true)}
-            >
-              Create Graph
-            </button>
+            {isExternal ? (
+              <a
+                href={datasetTableData.externalUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mr-3.5 inline-flex items-center rounded-md border shrink-0 border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              >
+                View External Dataset
+              </a>
+            ) : (
+              <button
+                type="button"
+                className="mr-3.5 inline-flex items-center rounded-md border shrink-0 border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                onClick={() => setMakeGraph(true)}
+              >
+                Create Graph
+              </button>
+            )}
           </div>
         </div>
         <div className="mt-4">
@@ -73,6 +87,14 @@ export default function DatasetLayout({datasetData, setMakeGraph}) {
             <DatasetNotes datasetData={datasetData} />
             <DatasetFormats datasetData={datasetData} />
             <DatasetBadges datasetData={datasetData} />
+            {isExternal && datasetTableData?.message && (
+              <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-blue-800 font-medium">{datasetTableData.message}</p>
+                <p className="text-blue-600 mt-2">
+                  You can access this dataset by clicking the "View External Dataset" button above.
+                </p>
+              </div>
+            )}
             <DatasetTable datasetData={datasetData} />
           </div>
         </div>

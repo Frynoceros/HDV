@@ -1,27 +1,7 @@
-import {useEffect, useRef} from 'react';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Filler,
-  Legend,
-} from 'chart.js';
-import {Line} from 'react-chartjs-2';
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Filler,
-  Legend
-);
+import React, { useRef, useEffect } from 'react';
+import { Line } from 'react-chartjs-2';
+import { useResponsiveChart } from '../../hooks';
+import { registerChartJS } from './ChartRegistry';
 
 export default function AreaChart({
   xAxisLabel,
@@ -31,12 +11,20 @@ export default function AreaChart({
   setDownload,
   download,
 }) {
-  let ref = useRef(null);
+  const ref = useRef(null);
+  const { getResponsiveOptions, getChartContainer } = useResponsiveChart();
 
-  //run this function for ANY dependant changes on the graph
+  // Ensure Chart.js is registered
   useEffect(() => {
-    setDownload(ref);
-  }, [yAxisLabel, xAxisLabel, graphLabel]);
+    registerChartJS();
+  }, []);
+
+  // Update download reference when chart changes
+  useEffect(() => {
+    if (setDownload && ref.current) {
+      setDownload(ref);
+    }
+  }, [yAxisLabel, xAxisLabel, graphLabel, setDownload]);
 
   const getXArray = selectedCheckbox.map((x) => {
     return x[xAxisLabel];
@@ -48,28 +36,30 @@ export default function AreaChart({
 
   const labels = getXArray;
 
-  const options = {
-    responsive: true,
+  const baseOptions = {
     plugins: {
       legend: {
         position: 'top',
       },
-      scales: {
-        x: {
-          title: {
-            text: xAxisLabel,
-            display: true,
-          },
+    },
+    scales: {
+      x: {
+        title: {
+          text: xAxisLabel,
+          display: true,
         },
-        y: {
-          title: {
-            text: yAxisLabel,
-            display: true,
-          },
+      },
+      y: {
+        title: {
+          text: yAxisLabel,
+          display: true,
         },
       },
     },
   };
+
+  const options = getResponsiveOptions(baseOptions);
+  const containerStyle = getChartContainer();
 
   const data = {
     labels,
@@ -84,5 +74,9 @@ export default function AreaChart({
     ],
   };
 
-  return <Line ref={ref} options={options} data={data} className="max-h-96" />;
+  return (
+    <div style={containerStyle}>
+      <Line ref={ref} options={options} data={data} />
+    </div>
+  );
 }

@@ -1,24 +1,7 @@
-import React from 'react';
-import {useRef, useEffect} from 'react';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-} from 'chart.js';
+import React, { useRef, useEffect } from 'react';
 import { Bar } from 'react-chartjs-2';
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend
-);
+import { useResponsiveChart } from '../../hooks';
+import { registerChartJS } from './ChartRegistry';
 
 export default function HorizontalBarChart({
   xAxis,
@@ -33,11 +16,19 @@ export default function HorizontalBarChart({
   download,
 }) {
 
-  let ref = useRef(null);
+  const ref = useRef(null);
+  const { getResponsiveOptions, getChartContainer } = useResponsiveChart();
   
-  //run this function for ANY dependant changes on the graph
+  // Ensure Chart.js is registered
   useEffect(() => {
-    setDownload(ref);
+    registerChartJS();
+  }, []);
+  
+  // Update download reference when chart changes
+  useEffect(() => {
+    if (setDownload && ref.current) {
+      setDownload(ref);
+    }
   }, [
     xAxis,
     yAxis,
@@ -45,7 +36,9 @@ export default function HorizontalBarChart({
     yAxisLabel,
     xAxisLabel,
     graphLabel,
-    graphName,]);
+    graphName,
+    setDownload,
+  ]);
 
   const getXArray = selectedCheckbox.map((x) => {
     return x[xAxisLabel];
@@ -55,38 +48,44 @@ export default function HorizontalBarChart({
     return y[yAxisLabel];
   });
 
-const options = {
-  indexAxis: 'y',
-  elements: {
-    bar: {
-      borderWidth: 2,
+  const baseOptions = {
+    indexAxis: 'y',
+    elements: {
+      bar: {
+        borderWidth: 2,
+      },
     },
-  },
-  responsive: true,
-  plugins: {
-    legend: {
-      position: 'right'
+    plugins: {
+      legend: {
+        position: 'right'
+      },
+      title: {
+        display: true,
+        text: 'Horizontal Bar Chart',
+      },
     },
-    title: {
-      display: true,
-      text: 'Horizontal Bar Chart',
-    },
-  },
-};
+  };
 
-const labels = getXArray;
+  const options = getResponsiveOptions(baseOptions);
+  const containerStyle = getChartContainer();
 
-const data = {
-  labels,
-  datasets: [
-    {
-      label: graphLabel,
-      data: getYArray,
-      borderColor: 'rgb(255, 99, 132)',
-      backgroundColor: 'rgba(255, 99, 132, 0.5)',
-    },
-  ],
-};
+  const labels = getXArray;
 
-  return <Bar ref={ref} options={options} data={data} className="max-h-96" />;
+  const data = {
+    labels,
+    datasets: [
+      {
+        label: graphLabel,
+        data: getYArray,
+        borderColor: 'rgb(255, 99, 132)',
+        backgroundColor: 'rgba(255, 99, 132, 0.5)',
+      },
+    ],
+  };
+
+  return (
+    <div style={containerStyle}>
+      <Bar ref={ref} options={options} data={data} />
+    </div>
+  );
 }

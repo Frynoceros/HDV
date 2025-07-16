@@ -3,7 +3,8 @@ import DatasetLayout from './DatasetLayout';
 
 export default function DatasetContainer({
   datasetData,
-  handleGraphView,
+  datasetTableData,
+  makeGraph,
   setMakeGraph,
 }) {
   if (!datasetData) {
@@ -14,7 +15,7 @@ export default function DatasetContainer({
         <div className="w-full flex flex-col">
           <DatasetLayout
             datasetData={datasetData}
-            handleGraphViewh={handleGraphView}
+            datasetTableData={datasetTableData}
             setMakeGraph={setMakeGraph}
           />
         </div>

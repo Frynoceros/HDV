@@ -1,22 +1,7 @@
-import {useEffect, useState} from 'react';
 import Link from 'next/link';
 import {thumbnails} from '../../public/groupThumbs';
 
-const groupUrl = 'https://opendata.hawaii.gov/api/3/action/group_list';
-
-export default function GroupsIndex() {
-  const [groups, setGroups] = useState([]);
-  const [dataset, setDataset] = useState('');
-
-  async function fetchData(url) {
-    const res = await fetch(url);
-    const data = await res.json();
-
-    setGroups(data.result);
-  }
-  useEffect(() => {
-    fetchData(groupUrl);
-  }, []);
+export default function GroupsIndex({ groups }) {
 
   //function to remove hyphens and format text for main datasets page
   function titleEdit(rawText) {
@@ -64,4 +49,30 @@ export default function GroupsIndex() {
       </ul>
     </div>
   );
+}
+
+// Static generation at build time
+export async function getStaticProps() {
+  try {
+    const groupUrl = 'https://opendata.hawaii.gov/api/3/action/group_list';
+    const res = await fetch(groupUrl);
+    const data = await res.json();
+    
+    return {
+      props: {
+        groups: data.result || [],
+      },
+      // Revalidate every 24 hours (ISR - Incremental Static Regeneration)
+      revalidate: 24 * 60 * 60, // 86400 seconds
+    };
+  } catch (error) {
+    console.error('Error fetching groups for groups page:', error);
+    return {
+      props: {
+        groups: [],
+      },
+      // Retry more frequently if there was an error
+      revalidate: 60 * 60, // 1 hour
+    };
+  }
 }

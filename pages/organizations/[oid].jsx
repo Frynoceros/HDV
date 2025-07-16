@@ -11,20 +11,17 @@ export default function OrganizationsID() {
   async function fetchData(url) {
     const res = await fetch(url);
     const data = await res.json();
-    console.log(data);
     setOrganization(data.result);
   }
   useEffect(() => {
     fetchData(link);
   }, []);
 
-  console.log(organizations, 'Orgs');
 
   return (
     <>
       <div>
         <h1>Organizations</h1>
-        {console.log(organizations)}
         {/* <ul>
           {organizations.map((id) => {
             return (

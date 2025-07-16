@@ -1,17 +1,17 @@
 import {useState} from 'react';
 import {CheckIcon, ChevronUpDownIcon} from '@heroicons/react/20/solid';
 import {Combobox} from '@headlessui/react';
-import Link from 'next/link';
+import {useRouter} from 'next/router';
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
 }
 
 export default function Searchbar({datasets}) {
+  const router = useRouter();
   const [query, setQuery] = useState('');
   const [selectedDataset, setSelectedDataset] = useState(null);
 
-  console.log(datasets);
   // const sortedByTitle = [...datasets.sort()];
 
   const filteredDatasets =
@@ -24,14 +24,25 @@ export default function Searchbar({datasets}) {
   if (!datasets) {
     return;
   } else {
+    const handleDatasetSelect = (dataset) => {
+      setSelectedDataset(dataset);
+      const datasetName = typeof dataset === 'string' ? 
+        datasets.find(d => d.title === dataset)?.name : 
+        dataset?.name;
+      
+      if (datasetName) {
+        router.push(`/datasets/${datasetName}`);
+      }
+    };
+
     return (
-      <Combobox as="div" value={selectedDataset} onChange={setSelectedDataset}>
+      <Combobox as="div" value={selectedDataset} onChange={handleDatasetSelect}>
         <Combobox.Label className="block text-sm font-medium text-gray-700 "></Combobox.Label>
         <div className="relative mb-1">
           <Combobox.Input
             className="w-full rounded-md border border-gray-300 bg-white py-2 pl-3 pr-10 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm"
             onChange={(event) => setQuery(event.target.value)}
-            displayValue={(data) => data?.title}
+            displayValue={(data) => data?.title || ''}
             placeholder="Search..."
           />
           <Combobox.Button className="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
@@ -46,7 +57,7 @@ export default function Searchbar({datasets}) {
               {filteredDatasets.map(({title, id, name}) => (
                 <Combobox.Option
                   key={id}
-                  value={title}
+                  value={{name, title}}
                   className={({active}) =>
                     classNames(
                       'relative cursor-default select-none py-2 pl-3 pr-9',
@@ -62,7 +73,7 @@ export default function Searchbar({datasets}) {
                           selected && 'font-semibold'
                         )}
                       >
-                        <Link href={`/datasets/${name}`}>{title}</Link>
+                        {title}
                       </span>
 
                       {selected && (

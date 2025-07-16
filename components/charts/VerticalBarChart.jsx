@@ -1,25 +1,7 @@
-import React from 'react';
-import {useRef, useEffect, useState} from 'react';
-
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-} from 'chart.js';
-import {Bar} from 'react-chartjs-2';
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend
-);
+import React, { useRef, useEffect, useState } from 'react';
+import { Bar } from 'react-chartjs-2';
+import { useResponsiveChart } from '../../hooks';
+import { registerChartJS } from './ChartRegistry';
 
 export default function VerticalBarChart({
   xAxis,
@@ -32,11 +14,19 @@ export default function VerticalBarChart({
   selectedCheckbox,
   setDownload,
 }) {
-  let ref = useRef(null);
+  const ref = useRef(null);
+  const { getResponsiveOptions, getChartContainer } = useResponsiveChart();
 
-  //run this function for ANY dependant changes on the graphs
+  // Ensure Chart.js is registered
   useEffect(() => {
-    setDownload(ref);
+    registerChartJS();
+  }, []);
+
+  // Update download reference when chart changes
+  useEffect(() => {
+    if (setDownload && ref.current) {
+      setDownload(ref);
+    }
   }, [
     xAxis,
     yAxis,
@@ -45,6 +35,7 @@ export default function VerticalBarChart({
     xAxisLabel,
     graphLabel,
     graphName,
+    setDownload,
   ]);
 
   const [getXArray, setGetXArray] = useState([]);
@@ -62,10 +53,6 @@ export default function VerticalBarChart({
   }, [selectedCheckbox, xAxis, yAxis]);
 
 
-  useEffect(() => {
-    console.log('getXArray', getXArray);
-    console.log('getYArray', getYArray);
-  }, [getXArray]);
 
   const data = {
     labels: getXArray,
@@ -78,7 +65,7 @@ export default function VerticalBarChart({
     ],
   };
 
-  const options = {
+  const baseOptions = {
     scales: {
       x: {
         title: {
@@ -97,5 +84,12 @@ export default function VerticalBarChart({
     },
   };
 
-  return <Bar ref={ref} options={options} data={data} className="max-h-96" />;
+  const options = getResponsiveOptions(baseOptions);
+  const containerStyle = getChartContainer();
+
+  return (
+    <div style={containerStyle}>
+      <Bar ref={ref} options={options} data={data} />
+    </div>
+  );
 }

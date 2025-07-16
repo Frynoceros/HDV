@@ -29,7 +29,7 @@ export default function GroupID() {
   } else {
     return (
       <div className="mx-auto max-w-7xl sm:px-3 lg:px-4  ">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 h-screen">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 h-screen">
           {groups.length !== 0 ? (
             groups
               .map(({title, name}) => (
@@ -46,13 +46,11 @@ export default function GroupID() {
                     />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <Link href={`/datasets/${name}`}>
-                      <a className="focus:outline-none">
-                        <span className="absolute inset-0" aria-hidden="true" />
-                        <p className="text-sm font-medium text-gray-900">
-                          {title}
-                        </p>
-                      </a>
+                    <Link href={`/datasets/${name}`} className="focus:outline-none">
+                      <span className="absolute inset-0" aria-hidden="true" />
+                      <p className="text-sm font-medium text-gray-900">
+                        {title}
+                      </p>
                     </Link>
                   </div>
                 </div>

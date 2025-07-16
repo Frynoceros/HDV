@@ -1,14 +1,7 @@
-import {useEffect, useRef} from 'react';
-import {
-  Chart as ChartJS,
-  RadialLinearScale,
-  ArcElement,
-  Tooltip,
-  Legend,
-} from 'chart.js';
+import React, { useRef, useEffect } from 'react';
 import { PolarArea } from 'react-chartjs-2';
-
-ChartJS.register(RadialLinearScale, ArcElement, Tooltip, Legend);
+import { useResponsiveChart } from '../../hooks';
+import { registerChartJS } from './ChartRegistry';
 
 export default function PolarAreaChart({
   xAxisLabel,
@@ -18,12 +11,20 @@ export default function PolarAreaChart({
   setDownload,
   download,
 }) {
-  let ref = useRef(null);
+  const ref = useRef(null);
+  const { getResponsiveOptions, getChartContainer } = useResponsiveChart();
 
-  //run this function for ANY dependant changes on the graph
+  // Ensure Chart.js is registered
   useEffect(() => {
-    setDownload(ref);
-  }, [yAxisLabel, xAxisLabel, graphLabel]);
+    registerChartJS();
+  }, []);
+
+  // Update download reference when chart changes
+  useEffect(() => {
+    if (setDownload && ref.current) {
+      setDownload(ref);
+    }
+  }, [yAxisLabel, xAxisLabel, graphLabel, setDownload]);
 
   const getXArray = selectedCheckbox.map((x) => {
     return x[xAxisLabel];
@@ -35,28 +36,30 @@ export default function PolarAreaChart({
 
   const labels = getXArray;
 
-  const options = {
-    responsive: true,
+  const baseOptions = {
     plugins: {
       legend: {
         position: 'top',
       },
-      scales: {
-        x: {
-          title: {
-            text: xAxisLabel,
-            display: true,
-          },
+    },
+    scales: {
+      x: {
+        title: {
+          text: xAxisLabel,
+          display: true,
         },
-        y: {
-          title: {
-            text: yAxisLabel,
-            display: true,
-          },
+      },
+      y: {
+        title: {
+          text: yAxisLabel,
+          display: true,
         },
       },
     },
   };
+
+  const options = getResponsiveOptions(baseOptions);
+  const containerStyle = getChartContainer();
 
   const data = {
     labels,
@@ -71,5 +74,9 @@ export default function PolarAreaChart({
     ],
   };
 
-  return <PolarArea ref={ref} options={options} data={data} className="max-h-96"/>;
+  return (
+    <div style={containerStyle}>
+      <PolarArea ref={ref} options={options} data={data} />
+    </div>
+  );
 }

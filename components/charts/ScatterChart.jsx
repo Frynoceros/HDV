@@ -1,24 +1,7 @@
-import React from 'react';
-import {useEffect, useState, useRef} from 'react';
-import {
-  Chart as ChartJS,
-  LinearScale,
-  PointElement,
-  LineElement,
-  CategoryScale,
-  Tooltip,
-  Legend,
-} from 'chart.js';
-import {Scatter} from 'react-chartjs-2';
-
-ChartJS.register(
-  LinearScale,
-  CategoryScale,
-  PointElement,
-  LineElement,
-  Tooltip,
-  Legend
-);
+import React, { useEffect, useState, useRef } from 'react';
+import { Scatter } from 'react-chartjs-2';
+import { useResponsiveChart } from '../../hooks';
+import { registerChartJS } from './ChartRegistry';
 
 export default function ScatterChart({
   xAxis,
@@ -31,11 +14,19 @@ export default function ScatterChart({
   graphLabel,
   setDownload,
 }) {
-  let ref = useRef(null);
+  const ref = useRef(null);
+  const { getResponsiveOptions, getChartContainer } = useResponsiveChart();
 
-  //run this function for ANY dependant changes on the graph
+  // Ensure Chart.js is registered
   useEffect(() => {
-    setDownload(ref);
+    registerChartJS();
+  }, []);
+
+  // Update download reference when chart changes
+  useEffect(() => {
+    if (setDownload && ref.current) {
+      setDownload(ref);
+    }
   }, [
     xAxis,
     yAxis,
@@ -45,6 +36,7 @@ export default function ScatterChart({
     xAxisLabel,
     graphLabel,
     graphName,
+    setDownload,
   ]);
 
   const [dataMap, setDataMap] = useState([]);
@@ -60,7 +52,7 @@ export default function ScatterChart({
     setDataMap(coordinates);
   }, [yAxis, xAxis, selectedCheckbox]);
 
-  const options = {
+  const baseOptions = {
     scales: {
       x: {
         title: {
@@ -77,6 +69,9 @@ export default function ScatterChart({
     },
   };
 
+  const options = getResponsiveOptions(baseOptions);
+  const containerStyle = getChartContainer();
+
   const data = {
     datasets: [
       {
@@ -88,8 +83,8 @@ export default function ScatterChart({
   };
 
   return (
-    <div>
-      <Scatter ref={ref} options={options} data={data} className="max-h-96" />
+    <div style={containerStyle}>
+      <Scatter ref={ref} options={options} data={data} />
     </div>
   );
 }
