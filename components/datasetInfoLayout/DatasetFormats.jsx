@@ -60,9 +60,7 @@ export default function DatasetFormats({datasetData}) {
                   >
                     <a href={url}>Download</a>
                   </button>
-                ) : (
-                  console.log('No Download')
-                )}
+                ) : null}
               </div>
             </div>
           ))}
