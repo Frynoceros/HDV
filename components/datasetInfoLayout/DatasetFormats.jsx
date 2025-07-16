@@ -1,4 +1,5 @@
 import Loading from '../Loading';
+import Image from 'next/image';
 
 const formatObj = {
   CSV: 'https://icons.iconarchive.com/icons/icons8/ios7/256/Files-Csv-icon.png',
@@ -40,12 +41,12 @@ export default function DatasetFormats({datasetData}) {
             <div key={`top div ${id}`} className="flex justify-between">
               <li key={`li ${id}`} className="px-4 py-3 sm:px-0">
                 <div className="flex items-end" key={`div ${id}`}>
-                  <img
+                  <Image
                     className="mr-3"
-                    src={formatObj[format]}
-                    alt={`Image of a ${format}`}
-                    height="auto"
-                    width="50"
+                    src={formatObj[format] || formatObj['CSV']}
+                    alt={`${format} file type icon`}
+                    height={50}
+                    width={50}
                     key={`img ${id}`}
                   />
                   {name ? <p key={`p ${id}`}>{name}</p> : <p>{'No Name'}</p>}

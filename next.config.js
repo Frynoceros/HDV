@@ -12,6 +12,16 @@ const nextConfig = {
         hostname: 'opendata.hawaii.gov',
         pathname: '**',
       },
+      {
+        protocol: 'https',
+        hostname: 'health.hawaii.gov',
+        pathname: '**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'icons.iconarchive.com',
+        pathname: '**',
+      },
     ],
   },
 };

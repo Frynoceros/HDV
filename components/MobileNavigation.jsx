@@ -3,6 +3,7 @@ import { Dialog, Transition } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { HomeIcon, CircleStackIcon, UserGroupIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/router';
 
 const navigation = [
@@ -64,10 +65,12 @@ export default function MobileNavigation({ open, setOpen }) {
               {/* Sidebar component */}
               <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white px-6 pb-4">
                 <div className="flex h-16 shrink-0 items-center">
-                  <img
+                  <Image
                     className="h-12 w-auto"
                     src="/seal.png"
                     alt="Hawaii Open Data"
+                    width={48}
+                    height={48}
                   />
                   <span className="ml-3 text-lg font-semibold">Hawaii Open Data</span>
                 </div>

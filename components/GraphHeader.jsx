@@ -1,13 +1,17 @@
+import Image from 'next/image';
+
 export default function GraphHeader({datasetData, setMakeGraph}) {
   if (datasetData !== undefined) {
   }
   return (
     <div className="border-b border-gray-200 pb-5 pr-5 flex flex-row w-full justify-between">
       <div className="flex-shrink-1 flex w-4/5 ">
-        <img
-          className=" h-20 w-20 rounded-full"
-          src={`https://health.hawaii.gov/wp-content/themes/hic_state_template_parent/images/og-image.jpg`}
-          alt="hawaii state crest"
+        <Image
+          className="h-20 w-20 rounded-full object-cover"
+          src="https://health.hawaii.gov/wp-content/themes/hic_state_template_parent/images/og-image.jpg"
+          alt="Hawaii state crest"
+          width={80}
+          height={80}
         />
         <h1 className="text-2xl font-bold leading-6 text-gray-900 ml-3 flex items-center ">
           {datasetData.title}

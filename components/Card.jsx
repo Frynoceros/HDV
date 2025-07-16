@@ -1,14 +1,18 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function Card({ title, description, href, image, imageAlt }) {
   const CardContent = () => (
     <>
       <div className="flex-shrink-0">
         {image ? (
-          <img
+          <Image
             className="h-12 w-12 sm:h-16 sm:w-16 object-cover rounded-lg"
             src={image}
             alt={imageAlt || title}
+            width={64}
+            height={64}
+            sizes="(max-width: 640px) 48px, 64px"
           />
         ) : (
           <div className="h-12 w-12 sm:h-16 sm:w-16 rounded-lg bg-gray-300 flex items-center justify-center">
